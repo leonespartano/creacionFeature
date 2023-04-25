@@ -1,0 +1,12 @@
+# Archivo .gitignore
+
+# Ignorar la carpeta node_modules
+node_modules/
+
+# Ignorar archivos y directorios relacionados con el entorno de desarrollo
+*.log
+*.lock
+.env
+
+# Ignorar la carpeta output
+output/
