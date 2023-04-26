@@ -1,0 +1,10 @@
+Feature: Ejemplo de característica
+Scenarios:
+  - title: Ejemplo de escenario 1
+    given: Dado que estoy en la página principal
+    when: Cuando hago clic en el botón de inicio
+    then: Entonces debería ver la página de bienvenida
+  - title: Ejemplo de escenario 2
+    given: Dado que estoy en la página de contacto
+    when: Cuando envío el formulario de contacto
+    then: Entonces debería recibir un mensaje de confirmación
