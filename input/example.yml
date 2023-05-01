@@ -1,10 +1,2364 @@
-Feature: Ejemplo de característica
-Scenarios:
-  - title: Ejemplo de escenario 1
-    given: Dado que estoy en la página principal
-    when: Cuando hago clic en el botón de inicio
-    then: Entonces debería ver la página de bienvenida
-  - title: Ejemplo de escenario 2
-    given: Dado que estoy en la página de contacto
-    when: Cuando envío el formulario de contacto
-    then: Entonces debería recibir un mensaje de confirmación
+swagger: '2.0'
+
+info:
+  version: "0.0.1"
+  title: API Socios comerciales productos
+  description: |-
+    API para la cotización de seguros.
+
+host:
+    dev-api.bancoazteca.com.mx:8080
+
+basePath: /socios-comerciales/seguros-azteca/productos/v1
+schemes:
+  - https
+produces:
+  - application/json  
+securityDefinitions:
+  Bearer:
+    description: >
+      Para acceder a la API se debe pasar un token válido en todas las consultas.
+      La siguiente sintaxis se debe utilizar en el encabezado 'Authorization' :
+        Bearer: 2zzLJmBAtTNIU8nF8e8XbmDvaNGs
+    type: apiKey
+    name: Authorization
+    in: header
+
+security:
+  - Bearer: []
+
+paths:
+  /cotizaciones/planes:
+    get:
+      summary: "Consulta los planes de un seguro."
+      tags:
+        - Cotizaciones
+      description: "Permite consultar los planes de un seguros de vida a contado y seguros de daños que solo cubren la cobertura de responsabilidad civil."
+      produces:
+        - application/json
+      parameters:
+        - name: x-idAcceso
+          description: |-
+            `Identificador de acceso (idAcceso) obtenido del Api de seguridad.`
+          required: true
+          in: header
+          default: 235g32k12
+          type: string
+        - name: x-idNegocio
+          in: header
+          description: |-
+            Identificador del negocio que realiza la consulta (Max. 3 dígitos).
+              * 7 - `SEGUROS AZTECA`
+          required: true
+          type: integer
+          default: 7
+        - name: idProducto
+          in: query
+          description: "Identificador del seguro, del que se consultan sus planes."
+          required: true
+          type: integer
+          default: 34
+        - name: codigoPostal
+          in: query
+          description: "Código postal de la sucursal."
+          required: true
+          type: string
+          default: "62400"
+      responses:
+        200:
+          description: Ok
+          schema:
+            $ref: '#/definitions/consultaPlanesSeguroResponse'
+          examples:
+            application/json: |-
+              {
+                "mensaje": "Operación Exitosa",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "resultado": {
+                  "seguro": {
+                    "porcentajeIVA": 16,
+                    "condicionesCotizacion": "IVA y derecho de póliza incluidos.",
+                    "condicionesGenerales": [
+                      {
+                        "id": 1,
+                        "descripcion": "Condiciones generales por fallecimiento.",
+                        "url": "http://condicionesGenerales/documento1.pdf"
+                      }
+                    ],
+                    "planes": [
+                      {
+                        "id": 1,
+                        "nombre": "Titular+Cónyuge",
+                        "sumaAsegurada": "50000",
+                        "primaTotal": "431.03",
+                        "primaNeta": "14.0",
+                        "sku": 529264,
+                        "plazo": 1,
+                        "periodo": 1,
+                        "vigenciaPeriodo": "ANUAL",
+                        "caracteristicas": [
+                          {
+                            "id": 1,
+                            "descripcion": "Este plan pertenece a un seguro de tipo Vida."
+                          }
+                        ],
+                        "beneficios": [
+                          {
+                            "id": 11,
+                            "nombre": "Beneficion obligatorio",
+                            "primaTotal": "0",
+                            "primaNeta": "0.0",
+                            "deducible": "0",
+                            "tarifa": "0.01",
+                            "sumaAsegurada": "0",
+                            "caracteristicas": [
+                              {
+                                "id": 1,
+                                "descripcion": "Este beneficio corresponde a una cobertura."
+                              }
+                            ],
+                            "disponible": true,
+                            "descripcionDisponibilidad": ""
+                          }
+                        ],
+                        "beneficiosAdicionales": [
+                          {
+                            "id": 0,
+                            "nombre": "Beneficio opcional",
+                            "primaTotal": "0",
+                            "primaNeta": "0.0",
+                            "deducible": "0",
+                            "tarifa": "0.01",
+                            "sumaAsegurada": "0",
+                            "caracteristicas": [
+                              {
+                                "id": 1,
+                                "descripcion": "Este beneficio corresponde a una cobertura."
+                              }
+                            ],
+                            "disponible": true,
+                            "descripcionDisponibilidad": ""
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+        400:
+          description: Solicitud incorrecta
+          schema:
+            $ref: '#/definitions/error400'
+          examples:
+            application/json: |-
+              {
+                "codigo": "400.Socios-Comerciales-Seguros-Azteca-Productos.1001",
+                "mensaje": "Solicitud mal formada, favor de validar.",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "info": "https://baz-developer.bancoazteca.com.mx/info#400.Socios-Comerciales-Seguros-Azteca-Productos.1001",
+                "detalles": [
+                   "Parámetros no válidos"
+                ]
+              }
+        401:
+          description: "No autorizado"
+          schema:
+            $ref: '#/definitions/error401'
+          examples:
+            application/json: |-
+              {
+                "codigo": "401.Socios-Comerciales-Seguros-Azteca-Productos.104011",
+                "mensaje": "Recurso no autorizado.",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "info": "https://baz-developer.bancoazteca.com.mx/info#401.Socios-Comerciales-Seguros-Azteca-Productos.104011",
+                "detalles": [
+                  "El x-idAcceso está expirado o no es válido, favor de solicitar uno nuevo."
+                ]
+              }
+              
+        404:
+          description: "No encontrado"
+          schema:
+            $ref: '#/definitions/error404'
+          examples:
+            application/json: |-
+              {
+                "codigo": "404.Socios-Comerciales-Seguros-Azteca-Productos.1002",
+                "mensaje": "Información no encontrada.",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "info": "https://baz-developer.bancoazteca.com.mx/info#404.Socios-Comerciales-Seguros-Azteca-Productos.1002",
+                "detalles": [
+                  "No se encontro información con los datos proporcionados."
+                ]
+              }
+              
+        500:
+          description: Problema interno en el servidor
+          schema:
+            $ref: '#/definitions/error500'
+          examples:
+            application/json: |-
+              {
+                "codigo": "500.Socios-Comerciales-Seguros-Azteca-Productos.1003",
+                "mensaje": "Problema interno en el servidor, favor de validar.",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "info": "https://baz-developer.bancoazteca.com.mx/info#500.Socios-Comerciales-Seguros-Azteca-Productos.1003",
+                "detalles": [
+                  "Por el momento no esta disponible el servidor"
+                ]
+              }
+      security:
+        - Bearer: []
+  
+  /cotizaciones/{idCotizacion}:
+    get:
+      summary: "Consulta cotización."
+      tags:
+        - Cotizaciones
+      description: "Recurso genérico que permite consultar cualquier cotización realizada, utilizando como parámetros de entrada el identificador de la cotización."
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: x-idAcceso
+          description: |-
+            `Identificador de acceso (idAcceso) obtenido del Api de seguridad.`
+          required: true
+          in: header
+          default: 235g32k12
+          type: string
+        - name: x-idNegocio
+          in: header
+          description: |-
+            Identificador del negocio que realiza la consulta (Max. 3 dígitos).
+              * 7 - `SEGUROS AZTECA`
+          required: true
+          type: integer
+          default: 7
+        - name: idCotizacion
+          in: path
+          type: integer
+          required: true
+          description: "Identificador de la cotización."
+      responses:
+        200:
+          description: "Ok"
+          schema:
+            $ref: '#/definitions/consultaCotizacionPorIdResponse'
+          examples:
+            application/json: |-
+              {
+                "mensaje": "Operación Exitosa",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "resultado": {
+                  "fecha": "01/01/2021",
+                  "estado": 1,
+                  "seguro": {
+                    "id": 27,
+                    "nombre": "Vida Tranquilidad",
+                    "descripcion": "Seguro Vida Tranquilidad",
+                    "porcentajeIVA": 16,
+                    "condicionesCotizacion": "IVA y derecho de póliza incluidos.",
+                    "plan": {
+                      "id": 1,
+                      "nombre": "Titular+Cónyuge",
+                      "sumaAsegurada": "50000",
+                      "primaTotal": "431.03",
+                      "primaNeta": "0.0",
+                      "sku": 529264,
+                      "plazo": 1,
+                      "periodo": 1,
+                      "vigenciaPeriodo": "ANUAL",
+                      "caracteristicas": [
+                        {
+                          "id": 1,
+                          "descripcion": "Este plan pertenece a un seguro de tipo Vida."
+                        }
+                      ],
+                      "beneficios": [
+                        {
+                          "id": 11,
+                          "nombre": "Beneficio obligatorio",
+                          "primaTotal": "0",
+                          "primaNeta": "0",
+                          "deducible": "0",
+                          "tarifa": "0.01",
+                          "sumaAsegurada": "0",
+                          "caracteristicas": [
+                            {
+                              "id": 1,
+                              "descripcion": "Este beneficio corresponde a una cobertura."
+                            }
+                          ],
+                          "disponible": true,
+                          "descripcionDisponibilidad": ""
+                        }
+                      ],
+                      "beneficiosAdicionales": [
+                        {
+                          "id": 0,
+                          "nombre": "Beneficio opcional",
+                          "primaTotal": "0.0",
+                          "primaNeta": "0.0",
+                          "deducible": "0",
+                          "tarifa": "0.01",
+                          "sumaAsegurada": "0",
+                          "caracteristicas": [
+                            {
+                              "id": 1,
+                              "descripcion": "Este beneficio corresponde a una cobertura."
+                            }
+                          ],
+                          "disponible": true,
+                          "descripcionDisponibilidad": ""
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+        400:
+          description: "Solicitud inválida"
+          schema:
+            $ref: '#/definitions/error400'
+          examples:
+            application/json: |-
+              {
+                "codigo": "400.Socios-Comerciales-Seguros-Azteca-Productos.1001",
+                "mensaje": "Solicitud mal formada, favor de validar.",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "info": "https://baz-developer.bancoazteca.com.mx/info#400.Socios-Comerciales-Seguros-Azteca-Productos.1001",
+                "detalles": [
+                   "Parámetros no válidos"
+                ]
+              }
+        401:
+          description: "No autorizado"
+          schema:
+            $ref: '#/definitions/error401'
+          examples:
+            application/json: |-
+              {
+                "codigo": "401.Socios-Comerciales-Seguros-Azteca-Productos.104011",
+                "mensaje": "Recurso no autorizado.",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "info": "https://baz-developer.bancoazteca.com.mx/info#401.Socios-Comerciales-Seguros-Azteca-Productos.104011",
+                "detalles": [
+                  "El x-idAcceso está expirado o no es válido, favor de solicitar uno nuevo."
+                ]
+              }
+        404:
+          description: "No encontrado"
+          schema:
+            $ref: '#/definitions/error404'
+          examples:
+            application/json: |-
+              {
+                "codigo": "404.Socios-Comerciales-Seguros-Azteca-Productos.1002",
+                "mensaje": "Información no encontrada.",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "info": "https://baz-developer.bancoazteca.com.mx/info#404.Socios-Comerciales-Seguros-Azteca-Productos.1002",
+                "detalles": [
+                  "No se encontro información con los datos proporcionados."
+                ]
+              }
+
+        500:
+          description: "Problema interno en el servidor"
+          schema:
+            $ref: '#/definitions/error500'
+          examples:
+            application/json: |-
+              {
+                "codigo": "500.Socios-Comerciales-Seguros-Azteca-Productos.1001",
+                "mensaje": "Problema interno en el servidor, favor de validar.",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "info": "https://baz-developer.bancoazteca.com.mx/info#500.Socios-Comerciales-Seguros-Azteca-Productos.1001",
+                "detalles": [
+                  "Por el momento no esta disponible el servidor"
+                ]
+              }
+      security:
+        - Bearer: []
+
+  /cotizaciones:
+    post:
+      summary: "Genera cotización."
+      tags:
+        - Cotizaciones
+      description: "Permite realizar la cotización de seguros de vida a contado y seguros de daños que solo cubren la cobertura de responsabilidad civil."
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: x-idNegocio
+          in: header
+          description: |-
+            Identificador del negocio que realiza la consulta (Max. 3 dígitos).
+              * 7 - `SEGUROS AZTECA`
+          required: false
+          type: integer
+          default: 7
+        - name: body
+          in: body
+          required: true
+          description: "Datos necesarios para realizar la cotización."
+          schema:
+            $ref: '#/definitions/cotizacion'       
+      responses:
+        201:
+          description: "Ok"
+          schema:
+            $ref: '#/definitions/respuestaSeguro'
+          examples:
+            application/json: |-
+              {
+                "mensaje": "Operacion exitosa",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "resultado": {
+                  "idCotizacion": 302010
+                }
+              }
+
+        400:
+          description: "Solicitud inválida"
+          schema:
+            $ref: '#/definitions/error400'
+          examples:
+            application/json: |-
+              {
+                "codigo": "400.Socios-Comerciales-Seguros-Azteca-Productos.1001",
+                "mensaje": "Solicitud mal formada, favor de validar.",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "info": "https://baz-developer.bancoazteca.com.mx/info#400.Socios-Comerciales-Seguros-Azteca-Productos.1001",
+                "detalles": [
+                   "Parámetros no válidos"
+                ]
+              }
+
+        404:
+          description: "No encontrado"
+          schema:
+            $ref: '#/definitions/error404'
+          examples:
+            application/json: |-
+              {
+                "codigo": "404.Socios-Comerciales-Seguros-Azteca-Productos.1002",
+                "mensaje": "Información no encontrada.",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "info": "https://baz-developer.bancoazteca.com.mx/info#404.Socios-Comerciales-Seguros-Azteca-Productos.1002",
+                "detalles": [
+                  "No se encontro información con los datos proporcionados."
+                ]
+              }
+        500:
+          description: "Problema interno en el servidor"
+          schema:
+            $ref: '#/definitions/error500'
+          examples:
+            application/json: |-
+              {
+                "codigo": "500.Socios-Comerciales-Seguros-Azteca-Productos.1001",
+                "mensaje": "Problema interno en el servidor, favor de validar.",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "info": "https://baz-developer.bancoazteca.com.mx/info#500.Socios-Comerciales-Seguros-Azteca-Productos.1001",
+                "detalles": [
+                  "Por el momento no esta disponible el servidor"
+                ]
+              }
+      security:
+        - Bearer: []
+
+  /cotizaciones/{idCotizacion}/preactivaciones:
+    post:
+      summary: "Genera la preactivación del seguro."
+      tags:
+        - Activaciones
+      description: "Guarda los datos del titular, beneficiario y número de la cotización generando una pre-activación del seguro."
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: x-idAcceso
+          description: |-
+            `Identificador de acceso (idAcceso) obtenido del Api de seguridad.`
+          required: true
+          in: header
+          default: 235g32k12
+          type: string
+        - name: x-idNegocio
+          in: header
+          description: |-
+            Identificador del negocio que realiza la consulta (Max. 3 dígitos).
+              * 7 - `SEGUROS AZTECA`
+          required: true
+          type: integer
+          default: 7
+        - name: idCotizacion
+          in: path
+          type: integer
+          required: true
+          description: "Identificador de la cotización."
+          default: 400
+        - name: body
+          in: body
+          required: true
+          description: Datos de entrada para generar la preactivacion.
+          schema:
+            $ref: '#/definitions/entradaPreactivacion'
+      responses:
+        201:
+          description: "Creado"
+          schema:
+            $ref: '#/definitions/respuestaGuardarDatos'
+          examples:
+            application/json: |-
+              {
+                "mensaje": "Operacion exitosa",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "resultado": {
+                  "idReferenciaPago": "PB02271SAPP1201112124934456",
+                  "mensaje": "El pedido se encuentra pre-activado, favor de realizar el pago para proceder con la activación.",
+                  "fechaPreactivacion": "08/04/2021"
+                }
+              }
+
+        400:
+          description: "Solicitud inválida"
+          schema:
+            $ref: '#/definitions/error400'
+          examples:
+            application/json: |-
+              {
+                "codigo": "400.Socios-Comerciales-Seguros-Azteca-Productos.1001",
+                "mensaje": "Solicitud mal formada, favor de validar.",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "info": "https://baz-developer.bancoazteca.com.mx/info#400.Socios-Comerciales-Seguros-Azteca-Productos.1001",
+                "detalles": [
+                   "Parámetros no válidos"
+                ]
+              }
+        401:
+          description: "No autorizado"
+          schema:
+            $ref: '#/definitions/error401'
+          examples:
+            application/json: |-
+              {
+                "codigo": "401.Socios-Comerciales-Seguros-Azteca-Productos.104011",
+                "mensaje": "Recurso no autorizado.",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "info": "https://baz-developer.bancoazteca.com.mx/info#401.Socios-Comerciales-Seguros-Azteca-Productos.104011",
+                "detalles": [
+                  "El x-idAcceso está expirado o no es válido, favor de solicitar uno nuevo."
+                ]
+              }
+        404:
+          description: "No encontrado"
+          schema:
+            $ref: '#/definitions/error404'
+          examples:
+            application/json: |-
+              {
+                "codigo": "404.Socios-Comerciales-Seguros-Azteca-Productos.1002",
+                "mensaje": "Información no encontrada.",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "info": "https://baz-developer.bancoazteca.com.mx/info#404.Socios-Comerciales-Seguros-Azteca-Productos.1002",
+                "detalles": [
+                  "No se encontro información con los datos proporcionados."
+                ]
+              }
+        500:
+          description: "Problema interno en el servidor"
+          schema:
+            $ref: '#/definitions/error500'
+          examples:
+            application/json: |-
+              {
+                "codigo": "500.Socios-Comerciales-Seguros-Azteca-Productos.1001",
+                "mensaje": "Problema interno en el servidor, favor de validar.",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "info": "https://baz-developer.bancoazteca.com.mx/info#500.Socios-Comerciales-Seguros-Azteca-Productos.1001",
+                "detalles": [
+                  "Por el momento no esta disponible el servidor"
+                ]
+              }
+      security:
+        - Bearer: []
+        
+  /cotizaciones/{idCotizacion}/activaciones:
+    put:
+      summary: "Genera la activación del seguro."
+      tags:
+        - Activaciones
+      description: "Recurso genérico que genera la activación de  cualquier cotización preactivada."
+      produces:
+        - application/json
+      parameters:
+        - name: x-idNegocio
+          in: header
+          description: |-
+            Identificador del negocio que realiza la consulta (Max. 3 dígitos).
+              * 7 - `SEGUROS AZTECA`
+          required: true
+          type: integer
+          default: 7
+        - name: idCotizacion
+          in: path
+          type: integer
+          required: true
+          description: "Identificador de la cotización."
+          default: 302010
+      responses:
+        200:
+          description: Ok
+          schema:
+            $ref: '#/definitions/respuestaActivacion'
+          examples:
+            application/json: |-
+              {
+                "mensaje": "Operacion exitosa",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "resultado": {
+                  "certificado": {
+                    "numero": "0101462406762518",
+                    "inicioVigencia": "13/05/2020 10:24:00",
+                    "finVigencia": "01/05/2021 10:24:00",
+                    "fechaActivacion": "06/04/2021 02:01:00"
+                  }
+                }
+              }
+        400:
+          description: Solicitud incorrecta
+          schema:
+            $ref: '#/definitions/error400'
+          examples:
+            application/json: |-
+              {
+                "codigo": "400.Socios-Comerciales-Seguros-Azteca-Productos.1001",
+                "mensaje": "Solicitud mal formada, favor de validar.",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "info": "https://baz-developer.bancoazteca.com.mx/info#400.Socios-Comerciales-Seguros-Azteca-Productos.1001",
+                "detalles": [
+                   "Parámetros no válidos"
+                ]
+              }
+              
+        404:
+          description: "No encontrado"
+          schema:
+            $ref: '#/definitions/error404'
+          examples:
+            application/json: |-
+              {
+                "codigo": "404.Socios-Comerciales-Seguros-Azteca-Productos.1002",
+                "mensaje": "Información no encontrada.",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "info": "https://baz-developer.bancoazteca.com.mx/info#404.Socios-Comerciales-Seguros-Azteca-Productos.1002",
+                "detalles": [
+                  "No se encontro información con los datos proporcionados."
+                ]
+              }
+              
+        500:
+          description: Problema interno en el servidor
+          schema:
+            $ref: '#/definitions/error500'
+          examples:
+            application/json: |-
+              {
+                "codigo": "500.Socios-Comerciales-Seguros-Azteca-Productos.1003",
+                "mensaje": "Problema interno en el servidor, favor de validar.",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "info": "https://baz-developer.bancoazteca.com.mx/info#500.Socios-Comerciales-Seguros-Azteca-Productos.1003",
+                "detalles": [
+                  "Por el momento no esta disponible el servidor"
+                ]
+              }
+
+      security:
+        - Bearer: []
+  /documentos/{certificado}:
+    get:
+      summary: "Búsqueda de documentos."
+      tags:
+        - Documentos
+      description: "Busca documentos para reimpresión."
+      produces:
+        - application/json
+      parameters:
+        - name: x-idAcceso
+          description: |- 
+            `Identificador de acceso (idAcceso) obtenido del Api de seguridad.`
+          required: true
+          in: header
+          default: 235g32k12
+          type: string
+        - name: x-idNegocio
+          in: header
+          description: |-
+            Identificador del negocio que realiza la consulta (Max. 3 dígitos).
+              * 7 - `SEGUROS AZTECA`
+          required: true
+          type: integer
+          default: 7
+        - name: certificado
+          type: string
+          in: path
+          required: true
+          description: "Número de certificado."
+          default: SD000025
+      responses:
+        200:
+          description: Ok
+          schema:
+            $ref: '#/definitions/busquedaDocumentosRespuesta'
+          examples:
+            application/json: |-
+              {
+                "mensaje": "Operación Exitosa",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "resultado": {
+                  "documento": {
+                    "version": "v1",
+                    "url": "http://IPSEVIDOR/img4/BazDigital/Pdfs/2021/01/20/13017212321/5/191/957-2021120173451125.pdf"
+                  }
+                }
+              }
+        400:
+          description: Solicitud incorrecta
+          schema:
+            $ref: '#/definitions/error400'
+          examples:
+            application/json: |-
+              {
+                "codigo": "400.Socios-Comerciales-Seguros-Azteca-Productos.1001",
+                "mensaje": "Parámetros no validos, por favor valide su información",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "info": "https://baz-developer.bancoazteca.com.mx/info#400.Socios-Comerciales-Seguros-Azteca-Productos.1001",
+                "detalles": [
+                  "Parámetros no válidos"
+                ]
+              }
+        401:
+          description: "No autorizado"
+          schema:
+            $ref: '#/definitions/error401'
+          examples:
+            application/json: |-
+              {
+                "codigo": "401.Socios-Comerciales-Seguros-Azteca-Productos.104011",
+                "mensaje": "Recurso no autorizado.",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "info": "https://baz-developer.bancoazteca.com.mx/info#401.Socios-Comerciales-Seguros-Azteca-Productos.104011",
+                "detalles": [
+                  "El x-idAcceso está expirado o no es válido, favor de solicitar uno nuevo."
+                ]
+              }
+        404:
+          description: "No encontrado"
+          schema:
+            $ref: '#/definitions/error404'
+          examples:
+            application/json: |-
+              {
+                "codigo": "404.Socios-Comerciales-Seguros-Azteca-Productos.1002",
+                "mensaje": "Información no encontrada.",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "info": "https://baz-developer.bancoazteca.com.mx/info#404.Socios-Comerciales-Seguros-Azteca-Productos.1002",
+                "detalles": [
+                  "Información no encontrada"
+                ]
+              }      
+        500:
+          description: Problema interno en el servidor
+          schema:
+            $ref: '#/definitions/error500'
+          examples:
+            application/json: |-
+              {
+                "codigo": "500.Socios-Comerciales-Seguros-Azteca-Productos.1003",
+                "mensaje": "Problema interno en el servidor, favor de validar.",
+                "folio": "12a96aa1-7c11-41bf-8980-0b1a1812e3fd",
+                "info": "https://baz-developer.bancoazteca.com.mx/info#500.Socios-Comerciales-Seguros-Azteca-Productos.1003",
+                "detalles": [
+                    "Por el momento no esta disponible el servidor"
+                ]
+              }
+      security:
+        - Bearer: []
+
+definitions:
+  respuestaActivacion:
+    type: object
+    properties:
+      mensaje:
+        type: string
+        description: Mensaje descriptivo de la Respuesta
+        example: "Operacion exitosa"
+      folio:
+        type: string
+        description: Folio de la transacción
+        example: "12a96aa1-7c11-41bf-8980-0b1a1812e3fd"
+      resultado:
+        type: object
+        properties:
+          certificado:
+            $ref: '#/definitions/certificadoRespuesta'
+
+  certificadoRespuesta:
+    type: object
+    properties:
+      numero: 
+        type: string
+        description: "Número de certificado."
+        example: "0101462406762518"
+      inicioVigencia:
+        type: string
+        description: "Inicio de vigencia"
+        example: "13/05/2020 10:24:00"
+      finVigencia:
+        type: string
+        description: "Fin de vigencia."
+        example: "01/05/2021 10:24:00"
+      fechaActivacion:
+        type: string
+        description: "Fecha de activación."
+        example: "06/04/2021 02:01:00"
+
+  respuestaInformacionTienda:
+    type: object
+    properties:
+      mensaje:
+        type: string
+        description: "Mensaje descriptivo de la Respuesta"
+        example: "Operación Exitosa."
+      folio:
+        type: string
+        description: "Folio de la transacción"
+        example: "12a96aa1-7c11-41bf-8980-0b1a1812e3fd"
+
+
+  respuestaGuardarDatos:
+    type: object
+    properties:
+      mensaje:
+        type: string
+        description: "Mensaje descriptivo de la Respuesta"
+        example: "Operacion exitosa"
+      folio:
+        type: string
+        description: "Folio de la transacción"
+        example: "12a96aa1-7c11-41bf-8980-0b1a1812e3fd"
+      resultado:
+        $ref: '#/definitions/respuestaGuardarCotizacion'
+        
+  respuestaGuardarCotizacion:
+    type: object
+    properties:
+      idReferenciaPago:
+        type: string
+        description: | 
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+          Identificador único de pago
+        example: "PB02271SAPP1201112124934456"
+      mensaje:
+        type: string
+        description: "Mensaje descriptivo de la Respuesta."
+        example: El pedido se encuentra pre-activado, favor de realizar el pago para proceder con la activación.
+      fechaPreactivacion:
+        type: string
+        description: "Fecha de pre activacadion del seguro."
+        example: "08/04/2021"
+
+  entradaPreactivacion:
+    required:
+      - Cotizacion
+      - titular
+    type: object
+    properties:
+      titular:
+        $ref: '#/definitions/entradaTitular'
+      beneficiarios:
+        $ref: '#/definitions/entradaBeneficiarios'
+
+  entradaTitular:
+    required:
+      - nombre
+      - apellidoPaterno
+      - apellidoMaterno
+      - fechaNacimiento
+      - curp
+      - rfc
+      - idGenero
+      - idNacionalidad
+      - idEntidadNacimiento
+      - idPaisNacimiento
+      - idOcupacion
+      - idEstadoCivil
+      - idRegimenFiscal
+      - correosElectronicos
+      - domicilio
+      - telefonos
+    type: object
+    properties:
+      nombre:
+        type: string
+        description: Nombre del cliente titular. `Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "cliente"
+      apellidoPaterno:
+        type: string
+        description: Apellido paterno del cliente titular. `Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "seguros"
+      apellidoMaterno:
+        type: string
+        description: Apellido materno del cliente titular. `Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "azteca"
+      fechaNacimiento:
+        type: string
+        pattern: '^\d{2}/\d{2}/\d{4}$'
+        description: Fecha de nacimiento del cliente titular. `Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "01/01/1990"
+      curp:
+        type: string
+        description: Curp del cliente titular. `Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "XEXX010101MNEXXXA8"
+      rfc:
+        type: string
+        description: Rfc del cliente titular. `Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "XAXX010101000"
+      idGenero:
+        type: integer
+        description: Identificador del género, obtenido del `Api de Catalogos.`
+        example: 1
+      idNacionalidad:
+        type: integer
+        description: Identificador de la nacionalidad, obtenido del `Api de Catalogos.`
+        example: 1
+      idEntidadNacimiento:
+        type: integer
+        description: Identificador de la entidad de nacimiento, obtenido del `Api de Catalogos.`
+        example: 1
+      idPaisNacimiento:
+        type: integer
+        description: Identificador del país de nacimiento, obtenido del `Api de Catalogos.`
+        example: 1
+      idOcupacion:
+        type: integer
+        description: Identificador de la ocupación, obtenido del `Api de Catalogos.`
+        example: 5
+      idEstadoCivil:
+        type: integer
+        description: Identificador del estado civil, obtenido del `Api de Catalogos.`
+        example: 6
+      idRegimenFiscal:
+        type: integer
+        description: Identificador del régimen fiscal, obtenido del `Api de Catalogos.`
+        example: 1
+      domicilio:
+        $ref: '#/definitions/entradaDomicilio'
+      telefonos:
+        $ref: '#/definitions/entradaTelefonos'
+      correosElectronicos:
+        type: array
+        example: ["correo1@dominio", "correo2@dominio", "correo3@dominio"]
+        items:
+            type: string
+            description: |- 
+              Correo electrónico del cliente. 
+              `Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+      identificacion:
+        type: object
+        properties: 
+          idTipo:
+            type: integer
+            description: "Identificador del tipo de identificación *(Requerido para el seguro `Autos` )*"
+            example: 1
+          descripcion:
+            type: string
+            description: "Número de identificación *(Requerido para el seguro `Autos` )*"
+            example: "Q123Q321"
+      datosComplementarios:
+        type: array
+        items:
+          $ref: '#/definitions/atributosComplementarios'
+
+  entradaBeneficiarios:
+    type: array
+    items:
+      type: object
+      properties:
+        nombre:
+          type: string
+          description: Nombre del cliente beneficiario *(Requerido si el seguro incluye beneficiario)*. `Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+          example: "beneficiario"
+        apellidoPaterno:
+          type: string
+          description: Apellido paterno del cliente beneficiario *(Requerido si el seguro incluye beneficiario)*. `Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+          example: "seguros"
+        apellidoMaterno:
+          type: string
+          description: Apellido materno del cliente beneficiario *(Requerido si el seguro incluye beneficiario)*. `Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+          example: "azteca"
+        fechaNacimiento:
+          type: string
+          pattern: '^\d{2}/\d{2}/\d{4}$'
+          description: Fecha de nacimiento del cliente beneficiario *(Requerido si el seguro incluye beneficiario)*. `Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+          example: "01/01/1990"
+        idGenero:
+          type: integer
+          description: Identificador del género, obtenido del `Api de Catalogos.` *(Requerido si el seguro incluye beneficiario)*
+          example: 2
+        idParentesco:
+          type: integer
+          description: Identificador del parentesco, obtenido del `Api de Catalogos.` *(Requerido si el seguro incluye beneficiario)*
+          example: 2
+        idResidencia: 
+          type: integer
+          description: Identificador del tipo de residencia, obtenido del `Api de Catalogos.` *(Requerido para el seguro `Migrante` )*
+          example: 0
+        porcentaje: 
+          type: integer
+          description: Porcentaje de indemnización, obtenido del `Api de Catalogos.`*(si no se especifica por default es el `100%` )*
+          example: 100
+        datosComplementarios:
+          type: array
+          items:
+            $ref: '#/definitions/atributosComplementarios'
+
+  entradaDomicilio:
+    required:
+      - codigoPostal
+      - idPais
+      - idEstado
+      - idMunicipio
+      - idAsentamiento
+      - calle
+    type: object
+    properties:
+      codigoPostal:
+        type: string
+        description: |- 
+          Código postal.
+          `Cifre el valor de éste campo con la llave pública (accesoPublico) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8.`
+        example: "40880"
+      idPais:
+        type: integer
+        description: Identificador del país, obtenido del `Api de Catalogos.`
+        example: 157
+      idEstado:
+        type: integer
+        description: Identificador del estado, obtenido del `Api de Catalogos.`
+        example: 20
+      idMunicipio:
+        type: integer
+        description: Identificador del municipio, obtenido del `Api de Catalogos.`
+        example: 14
+      idAsentamiento:
+        type: integer
+        description: Identificador del asentamiento, obtenido del `Api de Catalogos.`
+        example: 3
+      calle:
+        type: string
+        description: |-
+          Nombre de la calle.
+          `Cifre el valor de éste campo con la llave pública (accesoPublico) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8.`
+        example: "Amado Nervo"
+      numeroExterior:
+        type: string
+        description: |- 
+          Número exterior.
+          `Cifre el valor de éste campo con la llave pública (accesoPublico) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8.`
+        example: "45"
+      numeroInterior:
+        type: string
+        description: |- 
+          Número interior.
+          `Cifre el valor de éste campo con la llave pública (accesoPublico) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8.`
+        example: "17"
+
+  entradaTelefonos:
+    type: array
+    items:
+      required:
+        - idTipo
+        - numero
+      type: object
+      properties: 
+        idTipo:
+          type: integer
+          description: Identificador del tipo de teléfono, obtenido del `Api de Catalogos.`
+          example: 3
+        numero:
+          type: string
+          description: |- 
+            Número telefónico.
+            `Cifre el valor de éste campo con la llave pública (accesoPublico) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8.`
+          example: "0000000001"
+        extension:
+          type: string
+          description: "Extensión."
+          example: "75262"
+
+  atributosComplementarios:
+    type: object
+    properties:
+      nombre:
+        type: string
+        description: "Nombre del atributo."
+        example: "Extranjero"
+      valor:
+        type: object
+        description: |-
+          Valor del atributo
+          `Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "NO"
+
+  busquedaDocumentosRespuesta:
+    type: object
+    properties:
+      mensaje:
+        type: string
+        description: "Mensaje descriptivo de la Respuesta"
+        example: "Operación Exitosa"
+      folio:
+        type: string
+        description: "Folio de la transacción"
+        example: "12a96aa1-7c11-41bf-8980-0b1a1812e3fd"
+      resultado:
+        type: object
+        properties:
+          documento:
+            $ref: '#/definitions/documentoResultado'
+
+  documentoResultado:
+    type: object
+    properties:
+      version:
+        type: string
+        description: "Versión del documento"
+        example: "v1"
+      url:
+        type: string
+        description: |- 
+            URL para la descarga del documento
+            `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "http://IPSEVIDOR/img4/BazDigital/Pdfs/2021/01/20/13017212321/5/191/957-2021120173451125.pdf"
+  
+  notificacionDocumentosRespuesta:
+    type: object
+    properties:
+      mensaje:
+        type: string
+        description: "Mensaje descriptivo de la Respuesta"
+        example: "Operación Exitosa"
+      folio:
+        type: string
+        description: "Folio de la transacción"
+        example: "12a96aa1-7c11-41bf-8980-0b1a1812e3fd"
+      resultado:
+        type: object
+        properties:
+          respuesta: 
+            description: "Lista de errores"
+            example: "El documento fue enviado correctamente."
+            
+  ConsultaDocumentosRespuesta:
+    type: object
+    properties:
+      mensaje:
+        type: string
+        description: "Mensaje descriptivo de la Respuesta"
+        example: "Operación Exitosa"
+      folio:
+        type: string
+        description: "Folio de la transacción"
+        example: "12a96aa1-7c11-41bf-8980-0b1a1812e3fd"
+      resultado:
+        type: object
+        properties:
+          cotizaciones:
+            type: array
+            items:
+              type: object
+              properties:
+                url:
+                  description: |- 
+                    "Dirección electronica donde se descarga el documento."
+                    `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8.`
+                  type: string
+                  example:
+                    "http://IPSEVIDOR/tcket/ticketInformativo.pdf"
+                documento: 
+                  description: |- 
+                    "Documento que se envia comprimido en base 64."
+                    `Importante: Descifrar el valor de éste campo con el accesoSimetrico y codigoAutentificacionHas obtenido del api de seguridad con el cifrado AES/CBC/PKCS5Padding encoding UTF-8.`
+                  type: string
+                  example:
+                    "POJPINABCI8281NJNJC2FDS"
+            
+
+  consultaCotizacionPorIdResponse:
+    type: object
+    properties:
+      mensaje:
+        type: string
+        description: "Mensaje descriptivo de la Respuesta"
+        example: "Operación Exitosa"
+      folio:
+        type: string
+        description: "Folio de la transacción"
+        example: "12a96aa1-7c11-41bf-8980-0b1a1812e3fd"
+      resultado:
+        type: object
+        properties:
+          fecha:
+            type: string
+            description: "Fecha de la cotización"
+            example: "01/01/2021"
+          estado:
+            type: integer
+            description: |-
+              Estado de la cotización
+              * `0` - Pendiente por activar
+              * `1` - Activo
+            example: 1
+          seguro:
+            $ref: '#/definitions/seguroCotizacion'
+
+  seguroCotizacion:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: "Identificador del deseguro"
+        example: 27
+      nombre:
+        type: string
+        description: "Nombre del seguro"
+        example: "Vida Tranquilidad"
+      descripcion:
+        type: string
+        description: "Descripción del seguro"
+        example: "Seguro Vida Tranquilidad"
+      porcentajeIVA:
+        type: number
+        description: "Porcentaje de IVA del seguro"
+        example: 16
+      condicionesCotizacion:
+        type: string
+        description: Texto adicional del seguro
+        example: "IVA y derecho de póliza incluidos."
+      plan:
+        $ref: '#/definitions/planSeguroConsulta' 
+
+  propiedades:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: "Identificador de la propiedad del deseguro"
+        example: 1
+      nombre:
+        type: string
+        description: "Nombre de la propiedad del deseguro"
+        example: "PolizaADN"
+      valor:
+        type: string
+        description: "Valor de la propiedad del deseguro"
+        example: "GF000005"
+
+  consultaPlanesSeguroResponse:
+    type: object
+    properties:
+      mensaje:
+        type: string
+        description: "Mensaje descriptivo de la Respuesta"
+        example: "Operación Exitosa"
+      folio:
+        type: string
+        description: "Folio de la transacción"
+        example: "12a96aa1-7c11-41bf-8980-0b1a1812e3fd"
+      resultado:
+        type: object
+        properties:
+          seguro:
+              type: object
+              properties:   
+                porcentajeIVA:
+                  type: number
+                  description: "Porcentaje de IVA del seguro"
+                  example: 16
+                condicionesCotizacion:
+                  type: string
+                  description: Texto adicional del seguro
+                  example: "IVA y derecho de póliza incluidos."
+                condicionesGenerales:
+                  description: Arreglo de documentos de condiciones generales.
+                  type: array
+                  items:
+                    $ref: '#/definitions/condicionesGenerales'
+                planes:
+                  type: array
+                  items:
+                    $ref: '#/definitions/planSeguro'
+  
+  consultaSeguroResponse:
+    type: object
+    properties:
+      mensaje:
+        type: string
+        description: "Mensaje descriptivo de la Respuesta"
+        example: "Operación Exitosa"
+      folio:
+        type: string
+        description: "Folio de la transacción"
+        example: "12a96aa1-7c11-41bf-8980-0b1a1812e3fd"
+      resultado:
+        type: object
+        properties:
+          seguros:
+              type: array
+              items:
+                type: object  
+                properties:
+                  id:
+                    type: integer
+                    description: "Identificador del seguro"
+                    example: 1
+                  nombre:
+                    type: string
+                    description: "Nombre del seguro"
+                    example: ""
+                  porcentajeIVA:
+                    type: number
+                    description: "Porcentaje de IVA del seguro"
+                    example: 16
+                  condicionesCotizacion:
+                    type: string
+                    description: Texto adicional del seguro
+                    example: "IVA y derecho de póliza incluidos."
+                  planes:
+                    type: array
+                    items:
+                      $ref: '#/definitions/planSeguro'
+
+  planSeguro:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: "Identificador del plan"
+        example: 1
+      nombre:
+        type: string
+        description: "Nombre del plan"
+        example: "Titular+Cónyuge"
+      sumaAsegurada:
+        type: string
+        description: |- 
+          "Monto de la suma asegurada seguro."
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "50000"
+      primaTotal:
+        type: string
+        description: |- 
+          "Precio del seguro."
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example:
+          "431.03"
+      primaNeta:
+        type: string
+        description: |- 
+          "Precio con IVA."
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example:  
+          "14.0"
+      sku:
+        type: integer
+        description: "Identificador SKU"
+        example: 529264
+      plazo:
+        description: Plazo del plan.
+        type: number
+        example: 1
+      periodo:
+        description: Identificador del esquema de pago [1:Semanal, 2:Quincenal, 3:Mensual, 10:Promoción].
+        type: integer
+        example: 1
+      vigenciaPeriodo:
+        description: Descripción de la vigencia del plan.
+        type: string
+        example: "ANUAL"
+      caracteristicas:
+        type: array
+        items:
+          $ref: '#/definitions/caracteristicasPlan'
+      beneficios:
+        type: array
+        items:
+          $ref: '#/definitions/beneficiosIncluidosPlan'
+      beneficiosAdicionales:
+        type: array
+        items:
+          $ref: '#/definitions/beneficiosAdicionalesPlan'
+
+  condicionesGenerales:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: Identificador del tipo de condiciones generales.
+        example: 1
+      descripcion:
+        type: string
+        description: Descripción de la condición general.
+        example: Condiciones generales por fallecimiento.
+      url:
+        type: string
+        description: "url del las condiciones generales"
+        example: "http://condicionesGenerales/documento1.pdf"
+
+  planSeguroConsulta:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: "Identificador del plan"
+        example: 1
+      nombre:
+        type: string
+        description: "Nombre del plan"
+        example: "Titular+Cónyuge"
+      sumaAsegurada:
+        type: string
+        description: |-
+          "Monto de la suma asegurada seguro."
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "50000"
+      primaTotal:
+        type: string
+        description: |-
+          "Precio del seguro."
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "431.03"
+      primaNeta:
+        type: string
+        description: |-
+          "Precio con IVA."
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "0.0"
+      sku:
+        type: integer
+        description: "Identificador SKU"
+        example: 529264
+      plazo:
+        description: Plazo del plan.
+        type: number
+        example: 1
+      periodo:
+        description: Identificador del esquema de pago [1:Semanal, 2:Quincenal, 3:Mensual, 10:Promoción].
+        type: integer
+        example: 1
+      vigenciaPeriodo:
+        description: Descripción de la vigencia del plan.
+        type: string
+        example: "ANUAL" 
+      caracteristicas:
+        type: array
+        items:
+          $ref: '#/definitions/caracteristicasPlan'
+      beneficios:
+        type: array
+        items:
+          $ref: '#/definitions/beneficiosIncluidosPlanConsulta'
+      beneficiosAdicionales:
+        type: array
+        items:
+          $ref: '#/definitions/beneficiosAdicionalesPlanConsulta'
+
+  caracteristicasPlan:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: "Identificador de la característica"
+        example: 1
+      descripcion:
+        type: string
+        description: "Descripción de la característica"
+        example: "Este plan pertenece a un seguro de tipo Vida."
+  
+  beneficiosIncluidosPlan:
+    type: object
+    properties: 
+      id:
+        type: integer
+        description: "Identificador del beneficio adicional"
+        example: 11
+      nombre:
+        type: string
+        description: "Descripción del beneficio adicional"
+        example: "Beneficion obligatorio"
+      primaTotal:
+        type: string
+        description: |- 
+          "Precio del seguro."
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "0"
+      primaNeta:
+        type: string
+        description: |-
+          "Precio con IVA."
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "0.0"
+      deducible:
+        type: string
+        description: |-
+          "Deducible"
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "0"
+      tarifa:
+        type: string
+        description: |-
+          "Tarifa de la cobertura"
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "0.01"
+      sumaAsegurada:
+        type: string
+        description: |- 
+          "Suma asegurada"
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "0"
+      caracteristicas:
+        type: array
+        items:
+          $ref: '#/definitions/caracteristicasBeneficios'
+      disponible:
+        type: boolean
+        description: "Disponibilidad de la cobertura"
+        example: true
+      descripcionDisponibilidad:
+        type: string
+        description: "Descripción del estado de la cobertura"
+        example: ""
+
+  beneficiosAdicionalesPlan:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: "Identificador del beneficio adicional"
+        example: 0
+      nombre:
+        type: string
+        description: "Descripción del beneficio adicional"
+        example: "Beneficio opcional"
+      primaTotal:
+        type: string
+        description: |-
+          "Precio del seguro."
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "0"
+      primaNeta:
+        type: string
+        description: |- 
+          "Precio con IVA."
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "0.0"
+      deducible:
+        type: string
+        description: |-
+          "Deducible"
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "0"
+      tarifa:
+        type: string
+        description: |-
+          "Tarifa de la cobertura"
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "0.01"
+      sumaAsegurada:
+        type: string
+        description: |-
+          "Suma asegurada"
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "0"
+      caracteristicas:
+        type: array
+        items:
+          $ref: '#/definitions/caracteristicasBeneficios'
+      disponible:
+        type: boolean
+        description: "Disponibilidad de la cobertura"
+        example: true
+      descripcionDisponibilidad:
+        type: string
+        description: "Descripción del estado de la cobertura"
+        example: ""
+
+  beneficiosIncluidosPlanConsulta:
+    type: object
+    properties: 
+      id:
+        type: integer
+        description: "Identificador del beneficio adicional"
+        example: 11
+      nombre:
+        type: string
+        description: "Descripción del beneficio adicional"
+        example: "Beneficio obligatorio"
+      primaTotal:
+        type: string
+        description: |-
+          "Precio del seguro."
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: 0.0
+      primaNeta:
+        type: string
+        description: |-
+          "Precio con IVA."
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: 0.0
+      deducible:
+        type: string
+        description: |-
+          "Deducible"
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: 0
+      tarifa:
+        type: string
+        description: |-
+          "Tarifa de la cobertura"
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: 0.01
+      sumaAsegurada:
+        type: string
+        description: |-
+          "Suma asegurada"
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "0"
+      caracteristicas:
+        type: array
+        items:
+          $ref: '#/definitions/caracteristicasBeneficios'
+      disponible:
+        type: boolean
+        description: "Disponibilidad de la cobertura"
+        example: true
+      descripcionDisponibilidad:
+        type: string
+        description: "Descripción del estado de la cobertura"
+        example: ""
+
+  beneficiosAdicionalesPlanConsulta:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: "Identificador del beneficio adicional"
+        example: 0
+      nombre:
+        type: string
+        description: "Descripción del beneficio adicional"
+        example: "Beneficio opcional"
+      primaTotal:
+        type: string
+        description: |-
+          "Precio del seguro."
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "0.0"
+      primaNeta:
+        type: string
+        description: |-
+          "Precio con IVA."
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "0.0"
+      deducible:
+        type: string
+        description: |-
+          "Deducible"
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "0"
+      tarifa:
+        type: string
+        description: |-
+          "Tarifa de la cobertura"
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "0.01"
+      sumaAsegurada:
+        type: string
+        description: |-
+          "Suma asegurada"
+          `Descifre el valor de éste campo con la llave privada (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "0"
+      caracteristicas:
+        type: array
+        items:
+          $ref: '#/definitions/caracteristicasBeneficios'
+      disponible:
+        type: boolean
+        description: "Disponibilidad de la cobertura"
+        example: true
+      descripcionDisponibilidad:
+        type: string
+        description: "Descripción del estado de la cobertura"
+        example: ""
+        
+  caracteristicasBeneficios:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: "Identificador de la característica del beneficio adicional"
+        example: 1
+      descripcion:
+        type: string
+        description: "Descripción de la característica del beneficio adicional"      
+        example: "Este beneficio corresponde a una cobertura."
+  
+  cotizacion:
+    type: object
+    required:
+      - sku
+      - idPlan
+      - codigoPostal
+      - coberturasAdicionales
+    properties:
+      sku:
+        type: integer
+        description: "Identificador del seguro"
+        example: 211
+      idPlan:
+        type: integer
+        description: "Identificador del plan"
+        example: 1
+      codigoPostal:
+        type: string
+        description: "Código postal donde se realiza la operación."
+        example: "14000"
+      coberturasAdicionales:
+        type: array
+        items:
+          type: string
+          description: "Lista de identificadores de beneficios adicionales"
+          example: "11"
+
+  Entradapersistencia:
+    type: object
+    required:
+      - seguros
+      - sucursal
+    properties:
+      seguros:
+        $ref: '#/definitions/persistencia'
+      sucursal:
+        $ref: '#/definitions/entradaSucursal'
+
+
+  persistencia:
+    type: array
+    items: 
+      type: object
+      required:
+        - numeroCertificado
+        - numeroSucursal
+        - numeroPedido
+        - idProductoAdn
+        - idSucursal
+        - sku
+      properties:
+        numeroCertificado:
+          type: string
+          description: "Número de certificado generado en la sucursal." 
+          example: "0100012195000164148"
+        numeroPedido :
+          type: integer
+          description: "Número de pedido generado en la sucursal."
+          example: 43050
+        idProductoAdn:
+          type: integer
+          description: "Identificador único de los seguros ofertados en el sistema ADN (Aministración de negocio) de la sucursal."
+          example: 105
+        sku:
+          type: integer
+          description: "Identificador del producto del seguro"
+          example: 211
+        referenciasPagos:
+          type: array
+          items:
+            $ref: '#/definitions/referenciasPagos'
+
+
+  referenciasPagos:
+    type: object
+    properties:
+      idTipo:
+        type: integer
+        description: |-
+          Tipo de referencia.
+          * `1` - Prima
+          * `2` - Comisión x Comercialización
+          * `3` - IVA x Comercialización
+          * `4` - Comisión x Recepción de flujos
+          * `5` - IVA x Recepción de flujos
+        example: 1
+      numero:
+        type: string
+        description: | 
+          `Cifre el valor de éste campo con la llave publica (accesoPrivado) obtenida del api de seguridad con el cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+          Número de referencia único.
+        example: "PB02271SAPP1201112124934456"
+
+  entradaSucursal:
+    type: object
+    required:
+    - id
+    - idPais
+    - idCanal
+    properties:
+      id:
+        type: integer
+        description: "Identificador único de la sucursal donde se realiza la transacción."
+        example: "4624"
+      nombre:
+        type: string
+        description: Especifica el nombre de la sucursal donde se realiza la operación
+        example: MEGA AV. AZTECA
+      estacionTrabajo:
+        type: string
+        description: Especifica la estacion de trabajo donde se realiza la operación
+        example: "WS_CAJA01"
+      idPais:
+          type: integer
+          description: "Identificador único del país donde se realiza la transacción."
+          example: "1"
+      idCanal:
+          type: integer
+          description: "Identificador único del canal donde se realiza la transacción."
+          example: "1"
+
+
+  entradaSucursalNotificacion:
+    type: object
+    required:
+    - id
+    - idPais
+    - idCanal
+    properties:
+      id:
+        type: integer
+        description: "Identificador único de la sucursal donde se realiza la transacción."
+        example: "4624"
+      nombre:
+        type: string
+        description: Especifica el nombre de la sucursal donde se realiza la operación
+        example: MEGA AV. AZTECA
+      idPais:
+          type: integer
+          description: "Identificador único del país donde se realiza la transacción."
+          example: "1"
+      idCanal:
+          type: integer
+          description: "Identificador único del canal donde se realiza la transacción."
+          example: "1"
+
+  entradaClienteUnico:
+    type: object
+    properties:
+      pais:
+        type: integer
+        description: |-
+          País del cliente (Requerido si se específica el canal, sucursal y folio). `- Sólo aplica para ventas a crédito.`
+        example: 1
+      canal:
+        type: integer
+        description: |-
+          Canal del cliente (Requerido si se específica el país, sucursal y folio). `- Sólo aplica para ventas a crédito.`
+        example: 3
+      sucursal:
+          type: integer
+          description: |-
+            Sucursal del cliente (Requerido si se específica el país, canal y folio).`- Sólo aplica para ventas a crédito.`
+          example: 172
+      folio:
+          type: integer
+          description: |-
+            Folio generado por cada cliente único (Requerido si se específica el país, canal y sucursal). `- Sólo aplica para ventas a crédito.`
+          example: 12
+
+  ofertas:
+    type: object
+    required:
+      - nombre
+      - apellidoPaterno
+      - apellidoMaterno
+      - fechaNacimiento
+      - idGenero
+      - idEstadoCivil
+      - codigoPostal
+    properties:
+      nombre:
+        type: string
+        description: Nombre del cliente titular. `Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "cliente"
+      apellidoPaterno:
+        type: string
+        description: Apellido paterno del cliente titular. `Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "seguros"
+      apellidoMaterno:
+        type: string
+        description: Apellido materno del cliente titular. `Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "azteca"
+      fechaNacimiento:
+        type: string
+        description: |-
+          "Fecha de nacimiento del cliente."
+          `Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: 01/01/2020
+      idGenero:
+        type: integer
+        description: |- 
+          sexo del cliente, obtenido del `Api de Catalogos.`
+          - `1` - Femenino
+          - `2` - Masculino
+        example: 1
+      idEstadoCivil:
+        type: integer
+        description: Identificador del estado civil, obtenido del `Api de Catalogos.`
+        example: 1
+      codigoPostal:
+        type: string
+        description: "Código postal de la sucursal."
+        example: "62400"
+
+  notificacionesTickets:
+    type: object
+    required:
+      - telefonos
+      - destinatarios
+    properties:
+      telefonos:
+        type: array
+        items:
+          type: string
+          description: Lista de teléfonos.`Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+          example: "123456"
+      destinatarios:
+        type: array
+        items:
+          type: string
+          description: Lista de destinatarios.`Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+          example: "correo@hotmail.com"
+      datosComplementarios:
+        type: array
+        items:
+          type: object
+          properties:
+            nombre:
+              type: string
+              description: "Nombre del atributo."
+              example: "FolioParam"
+            valor:
+              type: object
+              description: "Valor del atributo"
+              example: 123456
+
+  notificacionesDocumentos:
+    type: object
+    required:
+      - "destinatarios"
+      - "sucursal"
+      - "idDocumento"
+      - "idMediosNotificaciones"
+      - "idFormato"
+    properties:
+      destinatario:
+        type: object
+        properties:
+          telefonos:
+            type: array
+            items:
+              type: string
+            description: Lista de teléfonos (Requerido si no se específica algún correo).`Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+            example:
+              - "4831212891"
+              - "0551234567"
+              - "0055123567"
+          correos:
+            type: array
+            items:
+              type: string
+              description: Lista de correos electrónicos (Requerido si no se específica algún teléfono).`Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+            example: 
+              - "correo1@outlook.com"
+              - "correo2@hotmail.com"
+              - "correo3@gmail.com"
+      sucursal:
+        $ref: '#/definitions/entradaSucursalNotificacion'
+      clienteUnico:
+        $ref: '#/definitions/entradaClienteUnico'
+      atributosComplementarios:
+        type: array
+        items:
+          type: object
+          properties:
+            nombre:
+              type: string
+              description: "Nombre del atributo (En caso de ingresarse es requerido especificar el valor del atribruto)."
+            valor:
+              type: string
+              description: |-
+                "Valor del atributo (En caso de ingresarse es requerido especificar el nombre del atribruto)"
+                `Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: 
+          - {"nombre":"PRESUPUESTO", "valor":"1001"}
+          - {"nombre":"TRANSACCIÓN", "valor":"SAC-2000"}
+              
+      idMediosNotificaciones:
+        type: array
+        description: |-
+          Identificador del medio de envío de la notificación obtenido del Api de catalogos (Max. 2 dígitos).
+        items:
+          type: object
+          properties: 
+            id:
+              type: integer
+              description: id del medio.
+        example:
+          - 1
+          - 2
+      idDocumento:
+        type: integer
+        description: |- 
+          Identificador del tipo de documento a enviar en la notificación obtenido del Api de catalogos (Max. 2 dígitos).
+        example: 1
+              
+  notificacionesPolizas:
+    type: object
+    required:
+      - telefonos
+      - destinatarios
+    properties:
+      telefonos:
+        type: array
+        items:
+          type: string
+          description: Lista de teléfonos. `Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+          example: "123456"
+      destinatarios:
+        type: array
+        items:
+          type: string
+          description: Lista de destinatarios. `Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+          example: "correo@hotmail.com"
+        
+  respuestaSeguro:
+    type: object
+    properties:
+      mensaje:
+        type: string
+        description: "Mensaje descriptivo de la Respuesta"
+        example: "Operacion exitosa"
+      folio:
+        type: string
+        description: "Folio de la transacción"
+        example: "12a96aa1-7c11-41bf-8980-0b1a1812e3fd"
+      resultado:
+        $ref: '#/definitions/respuestaCotizacion'
+        
+  respuestaCotizacion:
+    type: object
+    properties:
+      idCotizacion:
+        type: integer
+        description: "Mensaje descriptivo de la Respuesta"
+        example: 302010
+        
+  entradaValidacion:
+    required:
+      - cliente
+      - perfilador
+    type: object
+    properties:
+      cliente:
+        $ref: '#/definitions/cliente'
+      productos:
+        type: array
+        items:
+            type: object
+            properties: 
+              id:
+                type: integer
+                description: "Identificador del producto"
+                example: 34
+              idPlanes:
+                type: array
+                description: "Identificador de los planes del seguro (Requerido si se específica  el id de producto)"
+                items:
+                  type: integer
+                example: [1, 2]
+      perfilador:
+        description: "Aplica para ventas por perfilamiento."
+        type: boolean
+        example: false      
+  cliente:
+    required:
+      - nombre
+      - apellidoPaterno
+      - apellidoMaterno
+      - fechaNacimiento
+      - idTipo
+    type: object
+    properties:
+      nombre:
+        type: string
+        description: Nombre del cliente titular. `Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "cliente"
+      apellidoPaterno:
+        type: string
+        description: Apellido paterno del cliente titular. `Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "seguros"
+      apellidoMaterno:
+        type: string
+        description: Apellido materno del cliente titular. `Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "azteca"
+      fechaNacimiento:
+        type: string
+        pattern: '^\d{2}/\d{2}/\d{4}$'
+        description: Fecha de nacimiento del cliente titular. `Cifre el valor de éste campo con la llave pública (accesoPublico) con cifrado RSA/ECB/OAEPWithSHA-1AndMGF1Padding encoding UTF-8`
+        example: "01/01/1990"
+      codigoPostal:
+        type: string
+        description: Código postal de la sucursal. 
+        example: "62400"
+      idEstadoCivil:
+        type: integer
+        description: Identificador del estado civil obtenido del `Api de Catalogos.`
+        example: 1
+      idGenero:
+        type: integer
+        description: |-
+          Identificador del género, obtenido del `Api de Catalogos.`
+          - `1` - FEMENINO
+          - `2` - MASCULINO
+        example: 1
+      idTipo:
+        type: integer
+        description: |-
+          Tipo del cliente. 
+          - `1` - Titular
+          - `2` - Asegurado
+          - `3` - Beneficiario
+        example: 1
+      idParentesco:
+          type: integer
+          description: Identificador del parentesco, obtenido del `Api de Catalogos.` *(Requerido si el tipo cliente es Asegurado, solo aplica para cónyuge e hijos)*
+          example: 2
+      clienteUnico:
+        $ref: '#/definitions/entradaClienteUnico'
+
+  
+  consultaReglasSeguros:
+    type: object
+    properties:
+      mensaje:
+        type: string
+        description: "Mensaje descriptivo de la Respuesta"
+        example: "Operación Exitosa"
+      folio:
+        type: string
+        description: "Folio de la transacción"
+        example: "12a96aa1-7c11-41bf-8980-0b1a1812e3fd"
+      resultado:
+        type: object
+        properties: 
+          productos:
+            type: array
+            items:
+              $ref: '#/definitions/productoSeguro1'
+              
+  productoSeguro1:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: "Identificador del producto del seguro."
+        example: 1
+      idPlan:
+        type: integer
+        description: "Identificador del plan del seguro."
+        example: 1
+      nombre:
+        type: string
+        description: "Nombre del producto del seguro."
+        example: "Titular+Cónyuge"
+      autorizado :
+        type: boolean
+        description: "Indica si se autoriza la adquisición del seguro."
+        example: false
+      observaciones:
+        type: array
+        items:
+          type: string
+          description: "Lista de obsevaciones del por que se nega la oferta del producto"
+          example: "No cumple con la edad mínima"  
+              
+  
+  error400:
+    type: object
+    properties:
+      codigo:
+        type: string
+        description: Código del error
+        example: "400.Socios-Comerciales-Seguros-Azteca-Productos.1001"
+      mensaje:
+        type: string
+        description: Descripción del error
+        example: "Solicitud mal formada, favor de validar."
+      folio: 
+        type: string
+        description: Número de folio de la operación
+        example: "22920190128134317232"
+      info:
+        type: string
+        description: Rutas de ayuda para atender el error
+        example: "https://baz-developer.bancoazteca.com.mx/info#400.Socios-Comerciales-Seguros-Azteca-Productos.1001"
+      detalles:
+        type: array
+        items:
+          type: string
+          description: "Lista de errores"
+          example: ["Parámetros no válidos"]  
+  
+  error404:
+    type: object
+    properties:
+      codigo:
+        type: string
+        description: Código del error
+        example: "404.Socios-Comerciales-Seguros-Azteca-Productos.1002"
+      mensaje:
+        type: string
+        description: Descripción del error
+        example: "Información no encontrada, favor de validar."
+      folio: 
+        type: string
+        description: Número de folio de la operación
+        example: "22920190128134317232"
+      info:
+        type: string
+        description: Rutas de ayuda para atender el error
+        example: "https://baz-developer.bancoazteca.com.mx/info#404.Socios-Comerciales-Seguros-Azteca-Productos.1002"
+      detalles:
+        type: array
+        items:
+          type: string
+          description: "Lista de errores"
+          example: ["Información no encontrada"] 
+
+  error401:
+    type: object
+    properties:
+      codigo:
+        type: string
+        description: Código del error
+        example: "401.Socios-Comerciales-Seguros-Azteca-Productos.104011"
+      mensaje:
+        type: string
+        description: Descripción del error
+        example: "Recurso no autorizado."
+      folio: 
+        type: string
+        description: Número de folio de la operación
+        example: "17020201110030616769"
+      info:
+        type: string
+        description: Rutas de ayuda para atender el error
+        example: "https://baz-developer.bancoazteca.com.mx/info#401.Socios-Comerciales-Seguros-Azteca-Productos.104011"
+      detalles:
+        type: array
+        items:
+          type: string
+          description: "Lista de errores"
+          example: "El x-idAcceso está expirado o no es válido, favor de solicitar uno nuevo."  
+
+  error500:
+    type: object
+    properties:
+      codigo:
+        type: string
+        description: Código del error
+        example: "500.Socios-Comerciales-Seguros-Azteca-Productos.1003"
+      mensaje:
+        type: string
+        description: Descripción del error
+        example: "Problema interno en el servidor, favor de validar."
+      folio: 
+        type: string
+        description: Número de folio de la operación
+        example: "12a96aa1-7c11-41bf-8980-0b1a1812e3fd"
+      info:
+        type: string
+        description: Rutas de ayuda para atender el error
+        example: "https://baz-developer.bancoazteca.com.mx/info#500.Socios-Comerciales-Seguros-Azteca-Productos.1003"
+      detalles:
+        type: array
+        items:
+          type: string
+          description: "Lista de errores"
+          example: ["Por el momento no esta disponible el servidor"] 
+          
+  summary:
+    type: object
+    properties: 
+      api-name:
+        type: string
+        description: API Cotización Seguros
+        example: Socios-Comerciales-Seguros-Azteca-Productos-v1
+      cotizaciones-planes-get:
+        type: object
+        properties:
+          displayName: 
+            type: string
+            description: Consulta los planes de un seguro
+            example: Consulta de planes
+      cotizaciones-idCotizacion-get:
+        type: object
+        properties:
+          displayName: 
+            type: string
+            description: Consulta cotización
+            example: Consulta de cotizaciones
+      cotizaciones-post:
+        type: object
+        properties:
+          displayName: 
+            type: string
+            description: 
+              Genera cotización.
+            example: Genera cotización.
+      cotizaciones-idCotizacion-preactivaciones-post:
+        type: object
+        properties:
+          displayName: 
+            type: string
+            description: Genera la preactivación del seguro
+            example: Genera la preactivación del seguro
+      cotizaciones-idCotizacion-activaciones-put:
+        type: object
+        properties:
+          displayName: 
+            type: string
+            description: Genera la activación del seguro
+            example: Genera la activación del seguro
+      documentos-certificados-get:
+        type: object
+        properties:
+          displayName: 
+            type: string
+            description: Realiza la busqueda de documentos para la reimpresión.
+            example: Realiza la busqueda de documentos para la reimpresión

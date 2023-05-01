@@ -1,6 +1,9 @@
-const yamlToFeatureConverter = require('./yamlToFeatureConverter');
+const {yamlToJson, extractJson} = require('./yamlToFeatureConverter');
 
 const inputFilePath = './input/example.yml';
-const outputFilePath = './output/example.feature';
+// const outputFilePath = './output/example.feature';
+const outputFilePath = './output/example.json';
 
-yamlToFeatureConverter(inputFilePath, outputFilePath);
+
+const jsonObject = yamlToJson(inputFilePath);
+extractJson(jsonObject, outputFilePath);
